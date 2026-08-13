@@ -6,6 +6,12 @@
 
 Бэкенд: Node.js + Express (TypeScript). Фронтенд: Vue 3 + Pinia. База: PostgreSQL.
 
+## Как выглядит
+
+![Главная](docs/screenshots/home.png)
+
+![Экран перевода](docs/screenshots/translate.png)
+
 ## Как запустить
 
 Собранные образы (как при выкладке): исходники компилируются, контейнер фронтенда раздаёт готовую статику.
