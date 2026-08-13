@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-server
+frontend/dist
+package-lock.json
+*.db
+coverage
+.env
+Dockerfile

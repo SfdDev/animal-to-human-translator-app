@@ -1,0 +1,29 @@
+{
+  "name": "Перевод сигналов животных",
+  "short_name": "Перевод сигналов",
+  "description": "Сопоставление типа звука, контекста и поведения с правилами из научных статей.",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12150f",
+  "theme_color": "#d4a054",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
