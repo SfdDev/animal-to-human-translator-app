@@ -1,5 +1,6 @@
 import type { CatalogRepository } from "../../application/ports.js";
 import type { FilledFields } from "../../domain/scoring/types.js";
+import { buildFormOptions } from "../../domain/catalog/form-options.js";
 import type { FormOptions, Rule, Source, Species } from "../../domain/types.js";
 import { query, queryOne } from "../db/pool.js";
 
@@ -17,16 +18,14 @@ export class PostgresCatalogRepository implements CatalogRepository {
   async getForm(speciesId: string): Promise<FormOptions | null> {
     const species = await this.getSpecies(speciesId);
     if (!species) return null;
-    return {
+    const rules = await this.listRules(speciesId);
+    return buildFormOptions(
       species,
-      sounds: await query("SELECT * FROM sounds WHERE species_id = ? ORDER BY label", [speciesId]),
-      contexts: await query("SELECT * FROM contexts WHERE species_id = ? ORDER BY label", [
-        speciesId,
-      ]),
-      behaviors: await query("SELECT * FROM behaviors WHERE species_id = ? ORDER BY label", [
-        speciesId,
-      ]),
-    };
+      await query("SELECT * FROM sounds WHERE species_id = ? ORDER BY label", [speciesId]),
+      await query("SELECT * FROM contexts WHERE species_id = ? ORDER BY label", [speciesId]),
+      await query("SELECT * FROM behaviors WHERE species_id = ? ORDER BY label", [speciesId]),
+      rules,
+    );
   }
 
   listRules(speciesId: string): Promise<Rule[]> {

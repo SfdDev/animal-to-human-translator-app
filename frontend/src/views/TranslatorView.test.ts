@@ -28,6 +28,7 @@ const form: FormOptions = {
   sounds: [{ id: "meow", label: "Мяу" }],
   contexts: [{ id: "food", label: "Еда" }],
   behaviors: [],
+  bySound: { meow: { contexts: ["food"], behaviors: [] } },
 };
 
 const result: InterpretResult = {
@@ -88,7 +89,7 @@ describe("TranslatorView", () => {
     await flushPromises();
     expect(wrapper.text()).toContain("Кошка");
     expect(wrapper.text()).toContain("Сигнал к человеку");
-    expect(wrapper.get(".den").attributes("href")).toBe("/");
+    expect(wrapper.text()).toContain("ветеринара");
   });
 
   it("показывает перевод, функцию, состояние и уверенность", async () => {

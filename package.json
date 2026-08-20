@@ -16,6 +16,7 @@
     "lint:fix": "eslint --fix server frontend/src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "docs:pdf": "tsx scripts/generate-docs-pdf.ts",
     "test": "vitest run --project unit --project frontend",
     "test:watch": "vitest --project unit --project frontend",
     "test:integration": "vitest run --project integration",

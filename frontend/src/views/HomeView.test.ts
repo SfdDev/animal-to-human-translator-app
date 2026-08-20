@@ -17,6 +17,11 @@ function mountHome() {
         name: "translate",
         component: { template: "<div />" },
       },
+      { path: "/guides/:speciesId", name: "guide", component: { template: "<div />" } },
+      { path: "/articles", name: "articles", component: { template: "<div />" } },
+      { path: "/articles/:slug", name: "article", component: { template: "<div />" } },
+      { path: "/faq", name: "faq", component: { template: "<div />" } },
+      { path: "/how-it-works", name: "how", component: { template: "<div />" } },
     ],
   });
   return router.push("/").then(() => ({
@@ -26,14 +31,14 @@ function mountHome() {
 }
 
 describe("HomeView", () => {
-  it("ведёт «Попробовать» на перевод без вида", async () => {
+  it("ведёт «Подобрать перевод» на перевод без вида", async () => {
     const { wrapper } = await mountHome();
     expect(wrapper.get(".cta").attributes("href")).toBe("/perevod");
   });
 
-  it("карточки видов ведут на кошку, собаку и курицу", async () => {
+  it("карточки видов ведут в справочник", async () => {
     const { wrapper } = await mountHome();
     const hrefs = wrapper.findAll(".home-kind").map((card) => card.attributes("href"));
-    expect(hrefs).toEqual(["/perevod/cat", "/perevod/dog", "/perevod/chicken"]);
+    expect(hrefs).toEqual(["/guides/cat", "/guides/dog", "/guides/chicken"]);
   });
 });

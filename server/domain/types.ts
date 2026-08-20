@@ -78,4 +78,6 @@ export type FormOptions = {
   sounds: Array<{ species_id: string; id: string; label: string; description: string | null }>;
   contexts: Array<{ species_id: string; id: string; label: string }>;
   behaviors: Array<{ species_id: string; id: string; label: string }>;
+  /** Контексты и поведение, для которых есть правила при выбранном звуке. */
+  bySound: Record<string, { contexts: string[]; behaviors: string[] }>;
 };

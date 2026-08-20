@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { applySeo } from "./head";
-import { SITE_NAME } from "./site";
+import { HOME_TITLE, SITE_NAME } from "./site";
 
 function route(path: string, speciesId?: string) {
   const router = createRouter({
@@ -26,12 +26,13 @@ describe("applySeo", () => {
 
   it("ставит title, description и schema", async () => {
     await route("/");
-    expect(document.title).toBe(SITE_NAME);
+    expect(document.title).toBe(`${HOME_TITLE} | ${SITE_NAME}`);
     expect(
       document.head.querySelector('meta[name="description"]')?.getAttribute("content"),
-    ).toMatch(/статей/);
+    ).toMatch(/научных статей/);
     const schema = document.getElementById("seo-schema")?.textContent ?? "";
     expect(schema).toContain("WebApplication");
+    expect(schema).toContain("FAQPage");
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toMatch(
       /\/$/,
     );
@@ -39,6 +40,6 @@ describe("applySeo", () => {
 
   it("для вида пишет заголовок перевода", async () => {
     await route("/perevod/cat", "cat");
-    expect(document.title).toBe(`Перевод — кошка | ${SITE_NAME}`);
+    expect(document.title).toBe(`Что означает мяукание и другие звуки кошки | ${SITE_NAME}`);
   });
 });
