@@ -20,7 +20,7 @@ function update(): void {
 }
 
 function toTop(): void {
-  const opts: ScrollToOptions = { top: 0, behavior: "smooth" };
+  const opts = { top: 0, behavior: "smooth" as const };
   window.scrollTo(opts);
   document.documentElement.scrollTo(opts);
   document.body.scrollTo(opts);
