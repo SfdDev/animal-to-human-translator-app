@@ -47,6 +47,7 @@ describe("useTranslatorStore", () => {
       sounds: [{ id: "meow", label: "Мяу" }],
       contexts: [{ id: "food", label: "Еда" }],
       behaviors: [],
+      bySound: {},
     });
     expect(store.soundId).toBe("");
     expect(store.contextId).toBe("food");

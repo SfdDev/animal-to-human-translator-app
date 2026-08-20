@@ -1,5 +1,7 @@
 import { SPECIES_IDS } from "../constants/species";
+import { FAQ_PAGE } from "../content/faq";
 import {
+  HOME_FAQ,
   SITE_DESCRIPTION,
   SITE_LANGUAGE,
   SITE_NAME,
@@ -8,17 +10,48 @@ import {
   type SeoPage,
 } from "./site";
 
+function breadcrumbsFor(page: SeoPage): Array<{ name: string; path: string }> {
+  const crumbs = [{ name: SITE_NAME, path: "/" }];
+  if (page.path === "/") return crumbs;
+
+  if (page.path.startsWith("/perevod")) {
+    crumbs.push({ name: "Перевод", path: "/perevod" });
+    if (page.speciesId && page.path !== "/perevod") {
+      crumbs.push({ name: SPECIES_SEO[page.speciesId].name, path: page.path });
+    }
+    return crumbs;
+  }
+
+  if (page.path.startsWith("/guides")) {
+    crumbs.push({ name: "Справочник", path: "/guides" });
+    if (page.speciesId && page.path !== "/guides") {
+      crumbs.push({ name: SPECIES_SEO[page.speciesId].name, path: page.path });
+    }
+    return crumbs;
+  }
+
+  if (page.path.startsWith("/articles")) {
+    crumbs.push({ name: "Статьи", path: "/articles" });
+    if (page.path !== "/articles") {
+      crumbs.push({ name: page.title, path: page.path });
+    }
+    return crumbs;
+  }
+
+  if (page.path.endsWith(".pdf")) {
+    crumbs.push({ name: page.title, path: page.path });
+    return crumbs;
+  }
+
+  crumbs.push({ name: page.title, path: page.path });
+  return crumbs;
+}
+
 export function jsonLdGraph(page: SeoPage, origin: string): Record<string, unknown> {
   const pageUrl = absoluteUrl(page.path, origin);
   const websiteId = `${origin}/#website`;
   const appId = `${origin}/#app`;
-  const crumbs = [{ name: SITE_NAME, path: "/" }];
-  if (page.path !== "/") {
-    crumbs.push({ name: "Перевод", path: "/perevod" });
-    if (page.speciesId) {
-      crumbs.push({ name: SPECIES_SEO[page.speciesId].name, path: page.path });
-    }
-  }
+  const crumbs = breadcrumbsFor(page);
 
   const graph: Record<string, unknown>[] = [
     {
@@ -87,6 +120,33 @@ export function jsonLdGraph(page: SeoPage, origin: string): Record<string, unkno
         position: index + 1,
         name: SPECIES_SEO[id].name,
         url: absoluteUrl(`/perevod/${id}`, origin),
+      })),
+    });
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${origin}/#faq`,
+      mainEntity: HOME_FAQ.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    });
+  }
+
+  if (page.path === "/faq") {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${origin}/faq#faq`,
+      mainEntity: FAQ_PAGE.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
       })),
     });
   }

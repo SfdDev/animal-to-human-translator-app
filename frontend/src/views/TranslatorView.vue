@@ -1,14 +1,25 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
-import PawMark from "../components/PawMark.vue";
 import { confidenceLabel, confidencePercent } from "../constants/confidence";
+import { isSpeciesId } from "../constants/species";
 import { useTranslatorForm } from "../composables/use-translator-form";
+import {
+  SPECIES_SEO,
+  TRANSLATE_PAGE_HEADING,
+  TRANSLATE_PAGE_SUBHEADING,
+} from "../seo/site";
 
 const {
   store,
   speciesId,
   speciesList,
   opts,
+  contextOptions,
+  behaviorOptions,
+  soundHint,
+  contextDisabled,
+  behaviorDisabled,
   error,
   loading,
   ready,
@@ -17,6 +28,18 @@ const {
   onSubmit,
   sourceMeta,
 } = useTranslatorForm();
+
+const speciesSeo = computed(() =>
+  speciesId.value && isSpeciesId(speciesId.value) ? SPECIES_SEO[speciesId.value] : null,
+);
+
+const pageHeading = computed(
+  () => speciesSeo.value?.pageHeading ?? TRANSLATE_PAGE_HEADING,
+);
+
+const pageSubheading = computed(
+  () => speciesSeo.value?.pageSubheading ?? TRANSLATE_PAGE_SUBHEADING,
+);
 
 function filled(value: string): boolean {
   return Boolean(value && value !== "—");
@@ -27,12 +50,9 @@ function filled(value: string): boolean {
   <p v-if="bootError" class="error">{{ bootError }}</p>
   <div v-else-if="ready" class="shell">
     <aside class="pane pane-in">
-      <RouterLink class="den" to="/" title="На главную">
-        <PawMark />
-        На главную
-      </RouterLink>
       <p class="kicker">Перевод</p>
-      <h1>Вид и сигнал</h1>
+      <h1>{{ pageHeading }}</h1>
+      <p class="note page-subheading">{{ pageSubheading }}</p>
       <section class="block-card">
         <h2>Вид</h2>
         <div class="species">
@@ -63,20 +83,21 @@ function filled(value: string): boolean {
               </option>
             </select>
           </label>
+          <p v-if="soundHint" class="note">{{ soundHint }}</p>
           <label class="field">
             <span>Контекст</span>
-            <select v-model="store.contextId">
+            <select v-model="store.contextId" :disabled="contextDisabled">
               <option value="">Не выбран</option>
-              <option v-for="row in opts?.contexts ?? []" :key="row.id" :value="row.id">
+              <option v-for="row in contextOptions" :key="row.id" :value="row.id">
                 {{ row.label }}
               </option>
             </select>
           </label>
           <label class="field">
             <span>Поведение</span>
-            <select v-model="store.behaviorId">
+            <select v-model="store.behaviorId" :disabled="behaviorDisabled">
               <option value="">Не выбрано</option>
-              <option v-for="row in opts?.behaviors ?? []" :key="row.id" :value="row.id">
+              <option v-for="row in behaviorOptions" :key="row.id" :value="row.id">
                 {{ row.label }}
               </option>
             </select>
@@ -94,10 +115,18 @@ function filled(value: string): boolean {
         </fieldset>
         <p v-if="error" class="error">{{ error }}</p>
       </section>
+      <section v-if="speciesSeo" class="block-card translate-seo">
+        <h2>О сигналах {{ speciesSeo.nameGenitive }}</h2>
+        <p class="muted">{{ speciesSeo.seoIntro }}</p>
+        <p class="muted">{{ speciesSeo.seoExamples }}</p>
+      </section>
     </aside>
     <section ref="outEl" class="pane pane-out" :aria-busy="loading">
       <p class="kicker">Вероятный перевод</p>
-      <h1>Что означает сигнал</h1>
+      <h2 class="pane-out-title">Что означает сигнал</h2>
+      <p class="legal-disclaimer">
+        Информация носит образовательный характер и не заменяет консультацию ветеринара.
+      </p>
       <div v-if="loading" class="loading-pane">
         <div class="spinner spinner-lg" aria-hidden="true" />
         <p class="gloss">Ищем перевод…</p>

@@ -12,11 +12,15 @@ export function robotsTxt(origin: string): string {
   ].join("\n");
 }
 
-export function sitemapXml(origin: string, lastmod = "2026-08-14"): string {
+export function sitemapXml(origin: string, lastmod = "2026-08-20"): string {
   const urls = seoPages()
     .map((page) => {
       const loc = absoluteUrl(page.path, origin);
-      const priority = page.path === "/" ? "1.0" : page.speciesId ? "0.8" : "0.9";
+      let priority = "0.7";
+      if (page.path === "/") priority = "1.0";
+      else if (page.path === "/perevod" || page.path.startsWith("/perevod/")) priority = "0.9";
+      else if (page.path.startsWith("/guides") || page.path.startsWith("/articles"))
+        priority = "0.8";
       return [
         "  <url>",
         `    <loc>${escapeXml(loc)}</loc>`,
@@ -41,6 +45,10 @@ export function llmsTxt(origin: string): string {
     const species = SPECIES_SEO[id];
     return `- [${species.name}](${absoluteUrl(`/perevod/${id}`, origin)}): ${species.about}`;
   }).join("\n");
+  const guideLinks = SPECIES_IDS.map((id) => {
+    const species = SPECIES_SEO[id];
+    return `- [${species.name}](${absoluteUrl(`/guides/${id}`, origin)})`;
+  }).join("\n");
   return `# ${SITE_NAME}
 
 > ${SITE_DESCRIPTION}
@@ -51,7 +59,18 @@ export function llmsTxt(origin: string): string {
 
 - [Главная](${absoluteUrl("/", origin)}): как устроен перевод и чем виды отличаются
 - [Перевод](${absoluteUrl("/perevod", origin)}): форма сигнала без заранее выбранного вида
+- [Справочник](${absoluteUrl("/guides", origin)}): обзоры по видам
+- [Статьи](${absoluteUrl("/articles", origin)}): разборы типичных ситуаций
+- [FAQ](${absoluteUrl("/faq", origin)}): частые вопросы
+- [Как работает](${absoluteUrl("/how-it-works", origin)}): логика сервиса
+- [Политика конфиденциальности](${absoluteUrl("/docs/politika-konfidencialnosti.pdf", origin)})
+- [Политика cookie](${absoluteUrl("/docs/politika-cookie.pdf", origin)})
+
+### Перевод по видам
 ${speciesLinks}
+
+### Справочник по видам
+${guideLinks}
 
 ## Для моделей
 
@@ -91,8 +110,14 @@ ${SITE_DESCRIPTION}
 - ${absoluteUrl("/perevod/cat", origin)} — кошка (${SPECIES_SEO.cat.latin})
 - ${absoluteUrl("/perevod/dog", origin)} — собака (${SPECIES_SEO.dog.latin})
 - ${absoluteUrl("/perevod/chicken", origin)} — курица (${SPECIES_SEO.chicken.latin})
+- ${absoluteUrl("/guides", origin)} — справочник по видам
+- ${absoluteUrl("/articles", origin)} — статьи
+- ${absoluteUrl("/docs/<slug>.pdf", origin)} — юридические PDF (политика, cookie, согласие; ссылки в футере)
+- ${absoluteUrl("/faq", origin)} — FAQ
+- ${absoluteUrl("/how-it-works", origin)} — как работает сервис
 
 Старые адреса /cat, /dog, /chicken перенаправляют на /perevod/{вид}.
+Старые /stati перенаправляют на /articles.
 
 ## API
 

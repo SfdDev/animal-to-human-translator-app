@@ -2,6 +2,14 @@ import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRoute } from "vue-router";
 import { fetchForm, fetchSpecies, interpret } from "../api/translator";
 import { isSpeciesId } from "../constants/species";
+import {
+  behaviorOptionsForSound,
+  contextOptionsForSound,
+  isBehaviorFieldDisabled,
+  isContextFieldDisabled,
+  pruneSelectionBySound,
+  soundFieldHint,
+} from "./form-options-by-sound";
 import { useTranslatorStore } from "../stores/translator";
 import type { FormOptions, Species } from "../types/translator";
 
@@ -22,9 +30,27 @@ export function useTranslatorForm() {
   const bootError = ref("");
   const outEl = ref<HTMLElement | null>(null);
 
+  const contextOptions = computed(() =>
+    opts.value ? contextOptionsForSound(opts.value, store.soundId) : [],
+  );
+
+  const behaviorOptions = computed(() =>
+    opts.value ? behaviorOptionsForSound(opts.value, store.soundId) : [],
+  );
+
+  const soundHint = computed(() => soundFieldHint(opts.value, store.soundId));
+  const contextDisabled = computed(() => isContextFieldDisabled(opts.value, store.soundId));
+  const behaviorDisabled = computed(() => isBehaviorFieldDisabled(opts.value, store.soundId));
+
+  function pruneBySound(): void {
+    if (!opts.value) return;
+    pruneSelectionBySound(opts.value, store);
+  }
+
   async function loadForm(id: string): Promise<void> {
     opts.value = await fetchForm(id);
     store.pruneInvalid(opts.value);
+    pruneBySound();
   }
 
   onMounted(async () => {
@@ -52,6 +78,13 @@ export function useTranslatorForm() {
         err instanceof Error ? err.message : "Не удалось загрузить форму для этого вида.";
     }
   });
+
+  watch(
+    () => store.soundId,
+    () => {
+      pruneBySound();
+    },
+  );
 
   onBeforeRouteLeave(() => {
     store.leavePage();
@@ -101,6 +134,11 @@ export function useTranslatorForm() {
     speciesId,
     speciesList,
     opts,
+    contextOptions,
+    behaviorOptions,
+    soundHint,
+    contextDisabled,
+    behaviorDisabled,
     error,
     loading,
     ready,

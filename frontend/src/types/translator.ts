@@ -30,6 +30,8 @@ export type FormOptions = {
   sounds: OptionRow[];
   contexts: OptionRow[];
   behaviors: OptionRow[];
+  /** Контексты и поведение с правилами для данного звука. */
+  bySound: Record<string, { contexts: string[]; behaviors: string[] }>;
 };
 
 export type Alternative = {

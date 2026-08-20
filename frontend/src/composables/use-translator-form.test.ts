@@ -24,9 +24,20 @@ const species: Species = {
 
 const catForm: FormOptions = {
   species,
-  sounds: [{ id: "meow", label: "Мяу" }],
-  contexts: [{ id: "food", label: "Еда" }],
-  behaviors: [],
+  sounds: [
+    { id: "meow", label: "Мяу" },
+    { id: "howl", label: "Вой" },
+  ],
+  contexts: [
+    { id: "food", label: "Еда" },
+    { id: "agonistic", label: "Конфликт с другой кошкой" },
+    { id: "door", label: "Дверь" },
+  ],
+  behaviors: [{ id: "approach", label: "Подходит" }],
+  bySound: {
+    meow: { contexts: ["food"], behaviors: ["approach"] },
+    howl: { contexts: ["agonistic"], behaviors: [] },
+  },
 };
 
 const result: InterpretResult = {
@@ -109,6 +120,70 @@ describe("useTranslatorForm", () => {
     expect(wrapper.vm.store.result?.fit).toBe("medium");
   });
 
+  it("фильтрует контексты по выбранному звуку", async () => {
+    const { wrapper } = await mountForm("/perevod/cat");
+    await flushPromises();
+    expect(wrapper.vm.contextOptions).toEqual([]);
+    expect(wrapper.vm.soundHint).toMatch(/Сначала выберите звук/);
+    expect(wrapper.vm.contextDisabled).toBe(true);
+    wrapper.vm.store.soundId = "howl";
+    await flushPromises();
+    expect(wrapper.vm.contextOptions.map((r: { id: string }) => r.id)).toEqual(["agonistic"]);
+    expect(wrapper.vm.contextDisabled).toBe(false);
+  });
+
+  it("сбрасывает контекст, если он не подходит к звуку", async () => {
+    const { wrapper } = await mountForm("/perevod/cat");
+    await flushPromises();
+    wrapper.vm.store.soundId = "meow";
+    wrapper.vm.store.contextId = "food";
+    wrapper.vm.store.soundId = "howl";
+    await flushPromises();
+    expect(wrapper.vm.store.contextId).toBe("");
+  });
+
+  it("блокирует поля, если у звука нет правил", async () => {
+    vi.mocked(fetchForm).mockResolvedValueOnce({
+      ...catForm,
+      bySound: { meow: { contexts: [], behaviors: [] }, howl: { contexts: [], behaviors: [] } },
+    });
+    const { wrapper } = await mountForm("/perevod/cat");
+    await flushPromises();
+    wrapper.vm.store.soundId = "howl";
+    await flushPromises();
+    expect(wrapper.vm.contextOptions).toEqual([]);
+    expect(wrapper.vm.contextDisabled).toBe(true);
+    expect(wrapper.vm.behaviorDisabled).toBe(true);
+  });
+
+  it("фильтрует контексты для собаки", async () => {
+    vi.mocked(fetchForm).mockResolvedValueOnce({
+      species: { ...species, id: "dog", name: "Собака" },
+      sounds: [
+        { id: "bark", label: "Лай" },
+        { id: "whine", label: "Скуление" },
+      ],
+      contexts: [
+        { id: "disturbance", label: "Тревога" },
+        { id: "isolation", label: "Одиночество" },
+        { id: "walk", label: "Прогулка" },
+      ],
+      behaviors: [],
+      bySound: {
+        bark: { contexts: ["disturbance", "walk"], behaviors: [] },
+        whine: { contexts: ["isolation"], behaviors: [] },
+      },
+    });
+    const { wrapper } = await mountForm("/perevod/dog");
+    await flushPromises();
+    wrapper.vm.store.soundId = "bark";
+    await flushPromises();
+    expect(wrapper.vm.contextOptions.map((r: { id: string }) => r.id)).toEqual([
+      "disturbance",
+      "walk",
+    ]);
+  });
+
   it("сбрасывает поля вида, пока грузится другой", async () => {
     const { wrapper, router } = await mountForm("/perevod/cat");
     await flushPromises();
@@ -130,6 +205,7 @@ describe("useTranslatorForm", () => {
       sounds: [{ id: "bark", label: "Лай" }],
       contexts: [],
       behaviors: [],
+      bySound: { bark: { contexts: [], behaviors: [] } },
     });
     await flushPromises();
     expect(wrapper.vm.opts?.sounds[0]?.id).toBe("bark");

@@ -44,6 +44,9 @@ export function makeRepo(over: Partial<CatalogRepository> = {}): CatalogReposito
         sounds: [{ species_id: "cat", id: "meow", label: "Мяу", description: null }],
         contexts: [{ species_id: "cat", id: "food", label: "Еда" }],
         behaviors: [{ species_id: "cat", id: "approach", label: "Подходит" }],
+        bySound: {
+          meow: { contexts: ["food"], behaviors: ["approach"] },
+        },
       } satisfies FormOptions;
     },
     listRules: async () => [],

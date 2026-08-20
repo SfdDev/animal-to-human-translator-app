@@ -2,6 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
+  readonly VITE_OPERATOR_NAME?: string;
+  readonly VITE_OPERATOR_EMAIL?: string;
 }
 
 declare module "*.vue" {
