@@ -42,9 +42,7 @@ describe("buildBySound для всех видов каталога", () => {
     expect(map.bark?.behaviors).toEqual(
       expect.arrayContaining(["at_door", "play_bow", "retreat", "stiff", "wag_loose"]),
     );
-    expect(map.growl?.contexts).toEqual(
-      expect.arrayContaining(["food_guard", "play", "stranger"]),
-    );
+    expect(map.growl?.contexts).toEqual(expect.arrayContaining(["food_guard", "play", "stranger"]));
     expect(map.whine?.contexts).toEqual(["isolation"]);
   });
 

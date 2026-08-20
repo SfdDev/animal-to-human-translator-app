@@ -101,11 +101,7 @@ watch(
     </ul>
 
     <nav v-if="totalPages > 1" class="article-pagination" aria-label="Страницы статей">
-      <RouterLink
-        v-if="page > 1"
-        class="article-pagination-link"
-        :to="pageLocation(page - 1)"
-      >
+      <RouterLink v-if="page > 1" class="article-pagination-link" :to="pageLocation(page - 1)">
         ← Назад
       </RouterLink>
       <span v-else class="article-pagination-link disabled">← Назад</span>

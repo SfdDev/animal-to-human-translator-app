@@ -40,8 +40,6 @@ describe("applySeo", () => {
 
   it("для вида пишет заголовок перевода", async () => {
     await route("/perevod/cat", "cat");
-    expect(document.title).toBe(
-      `Что означает мяукание и другие звуки кошки | ${SITE_NAME}`,
-    );
+    expect(document.title).toBe(`Что означает мяукание и другие звуки кошки | ${SITE_NAME}`);
   });
 });

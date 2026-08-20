@@ -1,5 +1,12 @@
 import { isSpeciesId, SPECIES_IDS, TRANSLATE_PATH, type SpeciesId } from "../constants/species";
-import { ARTICLES_PATH, FAQ_PATH, GUIDES_PATH, HOW_IT_WORKS_PATH, articlePath, guidePath } from "../constants/paths";
+import {
+  ARTICLES_PATH,
+  FAQ_PATH,
+  GUIDES_PATH,
+  HOW_IT_WORKS_PATH,
+  articlePath,
+  guidePath,
+} from "../constants/paths";
 import { ARTICLES } from "../content/articles";
 import { PDF_DOCUMENTS } from "../content/documents";
 import { SPECIES_GUIDES } from "../content/guides";

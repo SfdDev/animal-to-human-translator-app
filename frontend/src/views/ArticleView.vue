@@ -10,9 +10,7 @@ import { SPECIES_SEO } from "../seo/site";
 const route = useRoute();
 const article = computed(() => articleBySlug(String(route.params.slug ?? "")));
 const species = computed(() => (article.value ? SPECIES_SEO[article.value.speciesId] : null));
-const related = computed(() =>
-  article.value ? relatedArticles(article.value.slug) : [],
-);
+const related = computed(() => (article.value ? relatedArticles(article.value.slug) : []));
 </script>
 
 <template>
@@ -53,10 +51,7 @@ const related = computed(() =>
         </li>
       </ul>
       <p class="related-articles-more">
-        <RouterLink
-          class="content-text-link"
-          :to="articlesIndexLocation(1, article.speciesId)"
-        >
+        <RouterLink class="content-text-link" :to="articlesIndexLocation(1, article.speciesId)">
           Все статьи о {{ species.nameGenitive }}
         </RouterLink>
       </p>

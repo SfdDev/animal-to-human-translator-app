@@ -1,9 +1,7 @@
 import type { SpeciesId } from "../constants/species";
 
 export type ContentBlock =
-  | { type: "p"; text: string }
-  | { type: "h2"; text: string }
-  | { type: "ul"; items: string[] };
+  { type: "p"; text: string } | { type: "h2"; text: string } | { type: "ul"; items: string[] };
 
 export type Article = {
   slug: string;

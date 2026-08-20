@@ -1,11 +1,6 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from "vue-router";
 import { applySeo } from "../seo/head";
-import {
-  ARTICLES_PATH,
-  FAQ_PATH,
-  GUIDES_PATH,
-  HOW_IT_WORKS_PATH,
-} from "../constants/paths";
+import { ARTICLES_PATH, FAQ_PATH, GUIDES_PATH, HOW_IT_WORKS_PATH } from "../constants/paths";
 import { isSpeciesId, TRANSLATE_PATH } from "../constants/species";
 import { articleBySlug } from "../content/articles";
 import ArticleView from "../views/ArticleView.vue";

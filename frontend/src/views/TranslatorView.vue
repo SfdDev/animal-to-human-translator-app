@@ -4,11 +4,7 @@ import { RouterLink } from "vue-router";
 import { confidenceLabel, confidencePercent } from "../constants/confidence";
 import { isSpeciesId } from "../constants/species";
 import { useTranslatorForm } from "../composables/use-translator-form";
-import {
-  SPECIES_SEO,
-  TRANSLATE_PAGE_HEADING,
-  TRANSLATE_PAGE_SUBHEADING,
-} from "../seo/site";
+import { SPECIES_SEO, TRANSLATE_PAGE_HEADING, TRANSLATE_PAGE_SUBHEADING } from "../seo/site";
 
 const {
   store,
@@ -33,9 +29,7 @@ const speciesSeo = computed(() =>
   speciesId.value && isSpeciesId(speciesId.value) ? SPECIES_SEO[speciesId.value] : null,
 );
 
-const pageHeading = computed(
-  () => speciesSeo.value?.pageHeading ?? TRANSLATE_PAGE_HEADING,
-);
+const pageHeading = computed(() => speciesSeo.value?.pageHeading ?? TRANSLATE_PAGE_HEADING);
 
 const pageSubheading = computed(
   () => speciesSeo.value?.pageSubheading ?? TRANSLATE_PAGE_SUBHEADING,

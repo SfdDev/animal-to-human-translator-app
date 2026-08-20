@@ -2,12 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import PawMark from "./PawMark.vue";
-import {
-  ARTICLES_PATH,
-  FAQ_PATH,
-  GUIDES_PATH,
-  HOW_IT_WORKS_PATH,
-} from "../constants/paths";
+import { ARTICLES_PATH, FAQ_PATH, GUIDES_PATH, HOW_IT_WORKS_PATH } from "../constants/paths";
 import { TRANSLATE_PATH } from "../constants/species";
 import { SITE_NAME } from "../seo/site";
 
@@ -56,7 +51,12 @@ watch(
         {{ menuOpen ? "Закрыть" : "Меню" }}
       </button>
 
-      <nav id="site-nav" class="site-nav" :class="{ open: menuOpen }" aria-label="Основная навигация">
+      <nav
+        id="site-nav"
+        class="site-nav"
+        :class="{ open: menuOpen }"
+        aria-label="Основная навигация"
+      >
         <RouterLink
           v-for="link in links"
           :key="link.to"
