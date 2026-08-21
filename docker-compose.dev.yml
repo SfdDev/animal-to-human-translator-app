@@ -16,6 +16,67 @@ services:
       retries: 20
     restart: unless-stopped
 
+  migrate:
+    build:
+      context: .
+      target: backend-dev
+    command: ["npx", "tsx", "server/cli/migrate.ts"]
+    environment:
+      DATABASE_URL: postgres://translator:translator@postgres:5432/translator
+    volumes:
+      - ./server:/app/server
+      - ./tsconfig.server.json:/app/tsconfig.server.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  strapi:
+    image: node:22-bookworm-slim
+    working_dir: /opt/app
+    command: sh -c "npm install && npm run develop"
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: "1337"
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: translator
+      DATABASE_PASSWORD: translator
+      DATABASE_SSL: "false"
+      APP_KEYS: ${STRAPI_APP_KEYS:-key1,key2,key3,key4}
+      API_TOKEN_SALT: ${STRAPI_API_TOKEN_SALT:-apiTokenSaltChangeMe}
+      ADMIN_JWT_SECRET: ${STRAPI_ADMIN_JWT_SECRET:-adminJwtChangeMe}
+      TRANSFER_TOKEN_SALT: ${STRAPI_TRANSFER_TOKEN_SALT:-transferSaltChangeMe}
+      JWT_SECRET: ${STRAPI_JWT_SECRET:-jwtSecretChangeMe}
+      ENCRYPTION_KEY: ${STRAPI_ENCRYPTION_KEY:-encryptionKeyChangeMe32ch}
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./cms:/opt/app
+      - strapi_node_modules:/opt/app/node_modules
+      - strapi_uploads:/opt/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:1337/admin').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+    restart: unless-stopped
+
   backend:
     build:
       context: .
@@ -31,6 +92,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test:
         [
@@ -53,6 +116,7 @@ services:
       API_PROXY: http://backend:3001
       CHOKIDAR_USEPOLLING: "true"
       VITE_SITE_URL: ${VITE_SITE_URL:-http://localhost:5173}
+      VITE_STRAPI_URL: ${VITE_STRAPI_URL:-http://127.0.0.1:1337}
     volumes:
       - ./frontend:/app/frontend
       - ./tsconfig.json:/app/tsconfig.json
@@ -61,7 +125,11 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      strapi:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   translator_pg:
+  strapi_uploads:
+  strapi_node_modules:

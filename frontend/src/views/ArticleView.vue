@@ -1,20 +1,49 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import ContentPage from "../components/ContentPage.vue";
-import { articleBySlug, relatedArticles } from "../content/articles";
+import { relatedArticles } from "../content/article-queries";
+import { getArticle, listArticles } from "../content/article-repository";
+import type { Article } from "../content/types";
 import { articlesIndexLocation } from "../constants/paths";
 import { translateLocation } from "../router";
+import { applyArticleSeo } from "../seo/head";
 import { SPECIES_SEO } from "../seo/site";
 
 const route = useRoute();
-const article = computed(() => articleBySlug(String(route.params.slug ?? "")));
+const article = ref<Article | undefined>();
+const allArticles = ref<Article[]>([]);
+const loading = ref(true);
+
+async function load(): Promise<void> {
+  loading.value = true;
+  const slug = String(route.params.slug ?? "");
+  const [one, list] = await Promise.all([getArticle(slug), listArticles()]);
+  article.value = one;
+  allArticles.value = list;
+  if (one) applyArticleSeo(one);
+  loading.value = false;
+}
+
+watch(
+  () => route.params.slug,
+  () => {
+    void load();
+  },
+  { immediate: true },
+);
+
 const species = computed(() => (article.value ? SPECIES_SEO[article.value.speciesId] : null));
-const related = computed(() => (article.value ? relatedArticles(article.value.slug) : []));
+const related = computed(() =>
+  article.value ? relatedArticles(article.value.slug, 6, allArticles.value) : [],
+);
 </script>
 
 <template>
-  <ContentPage v-if="article && species" back-to="/articles" back-label="← К статьям">
+  <ContentPage v-if="loading" back-to="/articles" back-label="← К статьям">
+    <p class="muted">Загружаем статью…</p>
+  </ContentPage>
+  <ContentPage v-else-if="article && species" back-to="/articles" back-label="← К статьям">
     <p class="kicker">{{ species.name }} · статья</p>
     <h1>{{ article.title }}</h1>
     <p class="muted content-meta">Обновлено {{ article.published }}</p>

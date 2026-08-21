@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docs:pdf": "tsx scripts/generate-docs-pdf.ts",
+    "cms": "npm run develop --prefix cms",
     "test": "vitest run --project unit --project frontend",
     "test:watch": "vitest --project unit --project frontend",
     "test:integration": "vitest run --project integration",

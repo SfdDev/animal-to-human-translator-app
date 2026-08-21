@@ -1,19 +1,31 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import ContentPage from "../components/ContentPage.vue";
-import { articleBySlug } from "../content/articles";
+import { articleBySlug } from "../content/article-queries";
+import { listArticles } from "../content/article-repository";
 import { guideBySpecies } from "../content/guides";
+import type { Article } from "../content/types";
 import { translateLocation } from "../router";
 import { SPECIES_SEO } from "../seo/site";
 
 const route = useRoute();
+const articles = ref<Article[]>([]);
+
+watch(
+  () => route.params.speciesId,
+  async () => {
+    articles.value = await listArticles();
+  },
+  { immediate: true },
+);
+
 const guide = computed(() => guideBySpecies(String(route.params.speciesId ?? "")));
 const species = computed(() => (guide.value ? SPECIES_SEO[guide.value.speciesId] : null));
 const related = computed(() =>
   (guide.value?.relatedArticleSlugs ?? [])
-    .map((slug) => articleBySlug(slug))
-    .filter((article): article is NonNullable<typeof article> => Boolean(article)),
+    .map((slug) => articleBySlug(slug, articles.value))
+    .filter((article): article is Article => Boolean(article)),
 );
 </script>
 

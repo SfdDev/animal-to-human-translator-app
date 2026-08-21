@@ -1,13 +1,16 @@
 import type { Plugin } from "vite";
+import { fetchStrapiArticles } from "../api/strapi-articles";
+import type { Article } from "../content/types";
 import { llmsFullTxt, llmsTxt, robotsTxt, sitemapXml } from "./files";
 import { siteOrigin } from "./site";
 
-const FILES: Record<string, (origin: string) => string> = {
-  "/robots.txt": robotsTxt,
-  "/sitemap.xml": sitemapXml,
-  "/llms.txt": llmsTxt,
-  "/llms-full.txt": llmsFullTxt,
-};
+async function articlesForBuild(): Promise<Article[]> {
+  try {
+    return (await fetchStrapiArticles()) ?? [];
+  } catch {
+    return [];
+  }
+}
 
 export function seoFilesPlugin(): Plugin {
   return {
@@ -18,24 +21,50 @@ export function seoFilesPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0] ?? "";
-        const build = FILES[path];
-        if (!build) {
-          next();
+
+        if (path === "/robots.txt") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", contentType(path));
+          res.end(robotsTxt(siteOrigin()));
           return;
         }
-        const body = build(siteOrigin());
-        res.statusCode = 200;
-        res.setHeader("Content-Type", contentType(path));
-        res.end(body);
+        if (path === "/llms.txt") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", contentType(path));
+          res.end(llmsTxt(siteOrigin()));
+          return;
+        }
+        if (path === "/llms-full.txt") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", contentType(path));
+          res.end(llmsFullTxt(siteOrigin()));
+          return;
+        }
+        if (path === "/sitemap.xml") {
+          void articlesForBuild().then((articles) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", contentType(path));
+            res.end(sitemapXml(siteOrigin(), undefined, articles));
+          });
+          return;
+        }
+        next();
       });
     },
-    generateBundle() {
+    async generateBundle() {
       const origin = siteOrigin();
-      for (const [path, build] of Object.entries(FILES)) {
+      const articles = await articlesForBuild();
+      const files: Record<string, string> = {
+        "robots.txt": robotsTxt(origin),
+        "sitemap.xml": sitemapXml(origin, undefined, articles),
+        "llms.txt": llmsTxt(origin),
+        "llms-full.txt": llmsFullTxt(origin),
+      };
+      for (const [fileName, source] of Object.entries(files)) {
         this.emitFile({
           type: "asset",
-          fileName: path.slice(1),
-          source: build(origin),
+          fileName,
+          source,
         });
       }
     },

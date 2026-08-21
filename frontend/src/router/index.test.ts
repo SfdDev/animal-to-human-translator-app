@@ -43,14 +43,14 @@ describe("router", () => {
     expect(router.currentRoute.value.path).toBe("/");
   });
 
-  it("открывает FAQ и статьи", async () => {
+  it("открывает FAQ и маршрут статьи", async () => {
     await router.push("/faq");
     expect(router.currentRoute.value.name).toBe("faq");
     expect(document.title).toMatch(/Частые вопросы/);
 
     await router.push("/articles/myaukanie-u-dveri");
     expect(router.currentRoute.value.name).toBe("article");
-    expect(document.title).toMatch(/мяукание кошки у двери/);
+    expect(router.currentRoute.value.params.slug).toBe("myaukanie-u-dveri");
   });
 
   it("открывает пагинацию статей по URL", async () => {
@@ -60,9 +60,10 @@ describe("router", () => {
     expect(router.currentRoute.value.path).toBe("/articles/page/2");
   });
 
-  it("неизвестный slug статьи ведёт к списку", async () => {
+  it("неизвестный slug статьи остаётся на маршруте статьи", async () => {
     await router.push("/articles/no-such-article");
-    expect(router.currentRoute.value.name).toBe("articles");
+    expect(router.currentRoute.value.name).toBe("article");
+    expect(router.currentRoute.value.params.slug).toBe("no-such-article");
   });
 
   it("редиректит старые русские URL контента", async () => {

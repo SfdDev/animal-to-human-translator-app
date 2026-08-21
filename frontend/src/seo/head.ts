@@ -1,4 +1,6 @@
 import type { RouteLocationNormalized } from "vue-router";
+import type { Article } from "../content/types";
+import { articlePath } from "../constants/paths";
 import { jsonLdGraph } from "./schema";
 import { SITE_LANGUAGE, SITE_LOCALE, SITE_NAME, pageTitle, seoForRoute, siteOrigin } from "./site";
 
@@ -29,6 +31,38 @@ export function applySeo(to: RouteLocationNormalized): void {
   setLink("canonical", url);
   setLink("alternate", `${origin}/llms.txt`, { type: "text/plain", title: "LLMs" });
   setJsonLd(jsonLdGraph(page, origin));
+}
+
+/** SEO для статьи из Strapi/локального каталога (после async-загрузки). */
+export function applyArticleSeo(article: Article): void {
+  const origin = siteOrigin();
+  const path = articlePath(article.slug);
+  const titleText = article.seoTitle ?? article.title;
+  const description = article.seoDescription ?? article.description;
+  const title = pageTitle(titleText);
+  const url = `${origin}${path}`;
+
+  document.title = title;
+  setMeta("name", "description", description);
+  setMeta("property", "og:type", "article");
+  setMeta("property", "og:title", title);
+  setMeta("property", "og:description", description);
+  setMeta("property", "og:url", url);
+  setMeta("name", "twitter:title", title);
+  setMeta("name", "twitter:description", description);
+  setLink("canonical", url);
+  setJsonLd(
+    jsonLdGraph(
+      {
+        path,
+        title: titleText,
+        description,
+        speciesId: article.speciesId,
+      },
+      origin,
+      article,
+    ),
+  );
 }
 
 function setMeta(kind: "name" | "property", key: string, content: string): void {

@@ -12,6 +12,10 @@ export type Article = {
   summary: string;
   translateSoundHint?: string;
   body: ContentBlock[];
+  /** Override for <title>; falls back to title */
+  seoTitle?: string;
+  /** Override for meta description; falls back to description */
+  seoDescription?: string;
 };
 
 export type GuideSection = {

@@ -6,8 +6,20 @@ import { seoForRoute, seoPages, siteOrigin } from "./site";
 const origin = "https://example.test";
 
 describe("seo pages", () => {
+  const articlePages = [
+    {
+      slug: "myaukanie-u-dveri",
+      title: "Что означает мяукание кошки у двери",
+      description: "Описание",
+      summary: "Кратко",
+      speciesId: "cat" as const,
+      published: "2026-08-20",
+      body: [{ type: "p" as const, text: "Текст" }],
+    },
+  ];
+
   it("держит главную, перевод, контент и виды", () => {
-    const paths = seoPages().map((page) => page.path);
+    const paths = seoPages(articlePages).map((page) => page.path);
     expect(paths).toContain("/");
     expect(paths).toContain("/perevod");
     expect(paths).toContain("/faq");
@@ -32,6 +44,13 @@ describe("seo pages", () => {
   it("берёт справочник вида по пути", () => {
     expect(seoForRoute("/guides/dog", "dog").title).toBe("Справочник сигналов собаки");
   });
+
+  it("для статьи берёт title/description из переданного списка", () => {
+    const page = seoForRoute("/articles/myaukanie-u-dveri", undefined, articlePages);
+    expect(page.path).toBe("/articles/myaukanie-u-dveri");
+    expect(page.title.length).toBeGreaterThan(0);
+    expect(page.speciesId).toBe("cat");
+  });
 });
 
 describe("static seo files", () => {
@@ -41,7 +60,17 @@ describe("static seo files", () => {
   });
 
   it("кладёт абсолютные адреса в sitemap", () => {
-    const xml = sitemapXml(origin);
+    const xml = sitemapXml(origin, undefined, [
+      {
+        slug: "myaukanie-u-dveri",
+        title: "Статья",
+        description: "Описание",
+        summary: "Кратко",
+        speciesId: "cat",
+        published: "2026-08-20",
+        body: [{ type: "p", text: "Текст" }],
+      },
+    ]);
     expect(xml).toContain("<loc>https://example.test/</loc>");
     expect(xml).toContain("<loc>https://example.test/perevod/dog</loc>");
     expect(xml).toContain("<loc>https://example.test/articles/myaukanie-u-dveri</loc>");

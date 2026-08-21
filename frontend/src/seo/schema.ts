@@ -1,5 +1,6 @@
 import { SPECIES_IDS } from "../constants/species";
 import { FAQ_PAGE } from "../content/faq";
+import type { Article } from "../content/types";
 import {
   HOME_FAQ,
   SITE_DESCRIPTION,
@@ -47,7 +48,11 @@ function breadcrumbsFor(page: SeoPage): Array<{ name: string; path: string }> {
   return crumbs;
 }
 
-export function jsonLdGraph(page: SeoPage, origin: string): Record<string, unknown> {
+export function jsonLdGraph(
+  page: SeoPage,
+  origin: string,
+  article?: Article,
+): Record<string, unknown> {
   const pageUrl = absoluteUrl(page.path, origin);
   const websiteId = `${origin}/#website`;
   const appId = `${origin}/#app`;
@@ -110,6 +115,25 @@ export function jsonLdGraph(page: SeoPage, origin: string): Record<string, unkno
       })),
     },
   ];
+
+  if (article) {
+    graph.push({
+      "@type": "Article",
+      "@id": `${pageUrl}#article`,
+      headline: article.seoTitle ?? article.title,
+      description: article.seoDescription ?? article.description,
+      datePublished: article.published,
+      inLanguage: SITE_LANGUAGE,
+      isPartOf: { "@id": `${pageUrl}#webpage` },
+      about: page.speciesId
+        ? {
+            "@type": "Animal",
+            name: SPECIES_SEO[page.speciesId].name,
+            scientificName: SPECIES_SEO[page.speciesId].latin,
+          }
+        : undefined,
+    });
+  }
 
   if (page.path === "/") {
     graph.push({

@@ -7,9 +7,9 @@ import {
   articlePath,
   guidePath,
 } from "../constants/paths";
-import { ARTICLES } from "../content/articles";
 import { PDF_DOCUMENTS } from "../content/documents";
 import { SPECIES_GUIDES } from "../content/guides";
+import type { Article } from "../content/types";
 
 export { HOME_FAQ } from "../content/faq";
 
@@ -122,7 +122,7 @@ export function pageTitle(title: string): string {
   return title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
 }
 
-export function seoPages(): SeoPage[] {
+export function seoPages(articles: Article[] = []): SeoPage[] {
   return [
     {
       path: "/",
@@ -176,10 +176,10 @@ export function seoPages(): SeoPage[] {
         speciesId: id,
       };
     }),
-    ...ARTICLES.map((article) => ({
+    ...articles.map((article) => ({
       path: articlePath(article.slug),
-      title: article.title,
-      description: article.description,
+      title: article.seoTitle ?? article.title,
+      description: article.seoDescription ?? article.description,
       speciesId: article.speciesId,
     })),
     ...PDF_DOCUMENTS.map((doc) => ({
@@ -190,8 +190,8 @@ export function seoPages(): SeoPage[] {
   ];
 }
 
-export function seoForRoute(path: string, speciesId?: string): SeoPage {
-  const pages = seoPages();
+export function seoForRoute(path: string, speciesId?: string, articles: Article[] = []): SeoPage {
+  const pages = seoPages(articles);
   const exact = pages.find((page) => page.path === path);
   if (exact) return exact;
 
@@ -205,6 +205,16 @@ export function seoForRoute(path: string, speciesId?: string): SeoPage {
   }
 
   if (path.startsWith(`${ARTICLES_PATH}/`)) {
+    const slug = path.slice(ARTICLES_PATH.length + 1).split("/")[0] ?? "";
+    const article = articles.find((item) => item.slug === slug);
+    if (article) {
+      return {
+        path: articlePath(article.slug),
+        title: article.seoTitle ?? article.title,
+        description: article.seoDescription ?? article.description,
+        speciesId: article.speciesId,
+      };
+    }
     return pages.find((page) => page.path === ARTICLES_PATH) ?? pages[0]!;
   }
   if (path.startsWith(GUIDES_PATH)) {

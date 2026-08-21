@@ -1,4 +1,5 @@
 import { SPECIES_IDS } from "../constants/species";
+import type { Article } from "../content/types";
 import { SITE_DESCRIPTION, SITE_NAME, SPECIES_SEO, absoluteUrl, seoPages } from "./site";
 
 export function robotsTxt(origin: string): string {
@@ -12,8 +13,12 @@ export function robotsTxt(origin: string): string {
   ].join("\n");
 }
 
-export function sitemapXml(origin: string, lastmod = "2026-08-20"): string {
-  const urls = seoPages()
+export function sitemapXml(
+  origin: string,
+  lastmod = "2026-08-20",
+  articles?: Article[],
+): string {
+  const urls = seoPages(articles)
     .map((page) => {
       const loc = absoluteUrl(page.path, origin);
       let priority = "0.7";

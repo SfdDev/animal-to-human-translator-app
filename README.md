@@ -14,7 +14,7 @@
 
 ## Как запустить
 
-Собранные образы (как при выкладке): исходники компилируются, контейнер фронтенда раздаёт готовую статику.
+Одна команда поднимает Postgres, миграции (схема переводчика + БД `strapi`), Strapi, API и фронт:
 
 ```bash
 docker compose up --build
@@ -26,26 +26,22 @@ docker compose up --build
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-Три контейнера: `frontend`, `backend`, `postgres`.
+Сервисы: `postgres` → `migrate` → `backend` + `strapi` → `frontend`.
 
 - Интерфейс: http://localhost:5173/
 - Перевод: `/perevod`, виды: `/perevod/cat`, `/perevod/dog`, `/perevod/chicken`
-- Браузер ходит в API через прокси `/api` (внутри Docker бэкенд слушает `backend:3001`)
-- Postgres с хоста: `127.0.0.1:5433` (внутри Docker — `postgres:5432`)
+- Статьи: `/articles` (из Strapi)
+- Админка блога: http://127.0.0.1:1337/admin (при первом заходе создайте admin)
+- Браузер ходит в API переводчика через прокси `/api`
+- Postgres с хоста: `127.0.0.1:5433`
 
 Если 5173 уже занят локальным `npm run dev`, остановите его — порт нужен контейнеру.
 
-Скопируйте `.env.example` в `.env`. Для своего домена задайте `VITE_SITE_URL` и пересоберите фронтенд: от него собираются canonical, sitemap и `llms.txt`.
+Скопируйте `.env.example` в `.env` при необходимости. Для своего домена задайте `VITE_SITE_URL` и пересоберите фронтенд. `VITE_STRAPI_URL` по умолчанию `http://127.0.0.1:1337`.
 
-При старте бэкенд пишет каталог в базу, **только если таблица видов пустая**. Обычный рестарт правки в Postgres не затирает.
+При старте бэкенд пишет каталог в базу, **только если таблица видов пустая**. Strapi при пустой БД подхватывает seed статей.
 
-Схему без пересида:
-
-```bash
-docker compose exec backend node dist-server/cli/migrate.js
-```
-
-В dev-compose: `docker compose -f docker-compose.dev.yml exec backend npx tsx server/cli/migrate.ts`.
+Без Docker (локально): `npm run db && npm run migrate`, затем `npm run cms` и `npm run dev`.
 
 Полный пересид (TRUNCATE всех таблиц каталога):
 
@@ -116,6 +112,8 @@ npm run build
 | `server/infrastructure/db/schema.sql`   | Схема таблиц                                                                   |
 | PostgreSQL (Docker-том `translator_pg`) | То, с чем работает приложение. Том переживает рестарт контейнеров              |
 | `127.0.0.1:5433` с хоста                | Тот же Postgres, если смотреть с машины                                        |
+| БД `strapi` на том же Postgres          | Контент админки блога (отдельно от каталога переводчика)                       |
+| `cms/` + сервис `strapi`                | Self-hosted Strapi v5; статьи для `/articles`. Подробнее: [cms/README.md](cms/README.md) |
 
 Первый старт с пустой таблицей видов копирует `data.ts` в базу. Дальше правки в Postgres не затираются, пока не сделать явный `seed` или `SEED_ON_START=1`.
 
