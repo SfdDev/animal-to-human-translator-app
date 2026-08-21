@@ -64,9 +64,9 @@ describe("applyArticleSeo", () => {
       seoDescription: "SEO описание статьи",
     });
     expect(document.title).toBe(`SEO заголовок статьи | ${SITE_NAME}`);
-    expect(
-      document.head.querySelector('meta[name="description"]')?.getAttribute("content"),
-    ).toBe("SEO описание статьи");
+    expect(document.head.querySelector('meta[name="description"]')?.getAttribute("content")).toBe(
+      "SEO описание статьи",
+    );
     const schema = document.getElementById("seo-schema")?.textContent ?? "";
     expect(schema).toContain('"@type":"Article"');
     expect(schema).toContain("SEO заголовок статьи");

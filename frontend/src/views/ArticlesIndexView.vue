@@ -41,9 +41,7 @@ const page = computed(() => {
   return parseArticlePage(route.query.page);
 });
 
-const totalPages = computed(() =>
-  articlePageCount(activeCategory.value?.articles.length ?? 0),
-);
+const totalPages = computed(() => articlePageCount(activeCategory.value?.articles.length ?? 0));
 
 const pageArticles = computed(() =>
   activeCategory.value

@@ -10,9 +10,7 @@ try {
 
   const strapiDb = await ensureStrapiDatabase(databaseUrl);
   console.log(
-    strapiDb === "created"
-      ? "PostgreSQL: создана БД strapi"
-      : "PostgreSQL: БД strapi уже есть",
+    strapiDb === "created" ? "PostgreSQL: создана БД strapi" : "PostgreSQL: БД strapi уже есть",
   );
 } finally {
   await closeDb();

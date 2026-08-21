@@ -16,7 +16,9 @@ type StrapiArticleAttrs = {
 };
 
 type StrapiListResponse = {
-  data?: Array<{ id?: number; documentId?: string; attributes?: StrapiArticleAttrs } & StrapiArticleAttrs>;
+  data?: Array<
+    { id?: number; documentId?: string; attributes?: StrapiArticleAttrs } & StrapiArticleAttrs
+  >;
 };
 
 function strapiBaseUrl(): string {
@@ -34,7 +36,8 @@ function isContentBlock(value: unknown): value is ContentBlock {
   if (!value || typeof value !== "object") return false;
   const block = value as { type?: string; text?: unknown; items?: unknown };
   if (block.type === "p" || block.type === "h2") return typeof block.text === "string";
-  if (block.type === "ul") return Array.isArray(block.items) && block.items.every((i) => typeof i === "string");
+  if (block.type === "ul")
+    return Array.isArray(block.items) && block.items.every((i) => typeof i === "string");
   return false;
 }
 
@@ -43,7 +46,9 @@ function normalizeBody(raw: unknown): ContentBlock[] {
   return raw.filter(isContentBlock);
 }
 
-function unwrap(row: StrapiListResponse["data"] extends (infer U)[] | undefined ? U : never): StrapiArticleAttrs {
+function unwrap(
+  row: StrapiListResponse["data"] extends (infer U)[] | undefined ? U : never,
+): StrapiArticleAttrs {
   if (!row) return {};
   if (row.attributes && typeof row.attributes === "object") return row.attributes;
   return row;

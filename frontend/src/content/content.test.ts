@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  articlesByCategory,
-  parseArticleCategory,
-} from "./article-categories";
+import { articlesByCategory, parseArticleCategory } from "./article-categories";
 import {
   ARTICLES_PER_PAGE,
   articlePageCount,

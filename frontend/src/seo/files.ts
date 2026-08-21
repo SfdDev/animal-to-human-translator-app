@@ -13,11 +13,7 @@ export function robotsTxt(origin: string): string {
   ].join("\n");
 }
 
-export function sitemapXml(
-  origin: string,
-  lastmod = "2026-08-20",
-  articles?: Article[],
-): string {
+export function sitemapXml(origin: string, lastmod = "2026-08-20", articles?: Article[]): string {
   const urls = seoPages(articles)
     .map((page) => {
       const loc = absoluteUrl(page.path, origin);
