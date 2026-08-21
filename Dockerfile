@@ -21,7 +21,9 @@ CMD ["node", "dist-server/main.js"]
 
 FROM deps AS frontend-build
 ARG VITE_SITE_URL=http://localhost:5173
+ARG VITE_STRAPI_URL=http://127.0.0.1:1337
 ENV VITE_SITE_URL=$VITE_SITE_URL
+ENV VITE_STRAPI_URL=$VITE_STRAPI_URL
 COPY tsconfig.json ./
 COPY frontend ./frontend
 RUN npx vue-tsc --noEmit -p tsconfig.json && npx vite build --config frontend/vite.config.ts

@@ -2,7 +2,6 @@ import { createRouter, createWebHistory, type RouteLocationNormalized } from "vu
 import { applySeo } from "../seo/head";
 import { ARTICLES_PATH, FAQ_PATH, GUIDES_PATH, HOW_IT_WORKS_PATH } from "../constants/paths";
 import { isSpeciesId, TRANSLATE_PATH } from "../constants/species";
-import { articleBySlug } from "../content/articles";
 import ArticleView from "../views/ArticleView.vue";
 import ArticlesIndexView from "../views/ArticlesIndexView.vue";
 import FaqView from "../views/FaqView.vue";
@@ -29,12 +28,6 @@ function guardSpecies(to: RouteLocationNormalized) {
 function guardGuide(to: RouteLocationNormalized) {
   const raw = to.params.speciesId;
   if (!isSpeciesId(String(raw))) return { name: "guides" as const };
-  return true;
-}
-
-function guardArticle(to: RouteLocationNormalized) {
-  const slug = String(to.params.slug ?? "");
-  if (!articleBySlug(slug)) return { name: "articles" as const };
   return true;
 }
 
@@ -87,7 +80,6 @@ export const router = createRouter({
       path: `${ARTICLES_PATH}/:slug`,
       name: "article",
       component: ArticleView,
-      beforeEnter: guardArticle,
     },
     { path: "/cat", redirect: `${TRANSLATE_PATH}/cat` },
     { path: "/dog", redirect: `${TRANSLATE_PATH}/dog` },
